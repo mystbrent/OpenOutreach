@@ -136,6 +136,10 @@ def _hand_the_children_their_environment() -> None:
 
     django.setup()
 
+    from openoutreach import hub_off
+
+    hub_off.apply()
+
     from django.db import DatabaseError
 
     from openoutreach import wizard

@@ -329,6 +329,15 @@ This project is built in spare time to provide powerful, **free** open-source gr
 
 ---
 
+## 🔧 Changes in this fork
+
+`OPENOUTREACH_HUB=off` disables every call to the central contacts store
+(`hub.openoutreach.app`): no discovery pages, no resolved addresses and no install
+registration are sent, and no address is read from it. `openoutreach status --json` then
+reports `"hub": {"disabled": true}`. See `openoutreach/hub_off.py`.
+
+---
+
 ## ⚖️ License
 
 [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0) — see [LICENCE.md](LICENCE.md)
