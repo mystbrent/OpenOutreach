@@ -95,3 +95,41 @@ def test_every_verb_applies_the_switch(db, monkeypatch):
     cli._hand_the_children_their_environment()
 
     assert applied == [True]
+
+
+def test_status_json_from_the_real_command_reports_the_hub_disabled(db, service, monkeypatch, capsys):
+    """The document a host program parses, as the CLI prints it: pretty-printed, whole.
+
+    Runs the real `status --json` through the entry point, so `hub_off.apply` happens the
+    way it does for an operator. No network: there is no BetterContact key, so the credit
+    lookup never starts, and any socket connect would be recorded and refused.
+    """
+    import json
+    import os
+    import socket
+
+    from openoutreach import __main__ as cli
+
+    monkeypatch.setenv(hub_off.SWITCH, "off")
+    for name in [k for k in os.environ if k.startswith(("OPENOUTFIND_", "BETTERCONTACT"))]:
+        monkeypatch.delenv(name)
+    connects = []
+
+    def refuse(sock, address):
+        connects.append(address)
+        raise OSError("network disabled in this test")
+
+    monkeypatch.setattr(socket.socket, "connect", refuse)
+    environ = dict(os.environ)
+    try:
+        cli.main(["openoutreach", "status", "--json"])
+    finally:
+        os.environ.clear()
+        os.environ.update(environ)
+
+    out = capsys.readouterr().out
+    assert "\n  " in out, "status --json is pretty-printed; a host must read it whole"
+    status = json.loads(out)
+    assert status["hub"]["disabled"] is True
+    assert status["credits"]["balance"] is None
+    assert connects == []
