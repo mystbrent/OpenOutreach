@@ -41,3 +41,32 @@ def test_every_verb_applies_the_alias(db, monkeypatch):
     cli._hand_the_children_their_environment()
 
     assert applied == [True]
+
+
+def test_deepseek_models_send_thinking_disabled():
+    """DeepSeek's thinking mode rejects the forced tool call every structured verdict uses."""
+    from openoutfind.core.llm import build_llm_model
+
+    compat.apply()
+    model = build_llm_model("openai_compatible:deepseek-flash", "sk-test", "https://api.deepseek.com")
+
+    assert model.settings["extra_body"] == {"thinking": {"type": "disabled"}}
+
+
+def test_other_compatible_endpoints_are_left_alone():
+    from openoutfind.core.llm import build_llm_model
+
+    compat.apply()
+    model = build_llm_model("openai_compatible:some-model", "sk-test", "https://openrouter.ai/api/v1")
+
+    assert not (model.settings or {}).get("extra_body")
+
+
+def test_applying_twice_does_not_stack():
+    from openoutfind.core.llm import _PROVIDER_BUILDERS
+
+    compat.apply()
+    once = _PROVIDER_BUILDERS["openai_compatible"]
+    compat.apply()
+
+    assert _PROVIDER_BUILDERS["openai_compatible"] is once
