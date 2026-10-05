@@ -136,9 +136,10 @@ def _hand_the_children_their_environment() -> None:
 
     django.setup()
 
-    from openoutreach import hub_off
+    from openoutreach import compat, hub_off
 
     hub_off.apply()
+    compat.apply()
 
     from django.db import DatabaseError
 
