@@ -14,6 +14,7 @@
 - **No memory**: Never use the auto-memory system (no MEMORY.md, no memory files). Persistent context belongs in this file.
 - **No API backward compat**: no external users yet — rename, delete and rewrite freely; no shims or re-export modules.
 - **Migrations are almost entirely the children's.** This project owns the one migration graph *over* them and writes only its own config app's (`openoutreach/config/migrations/`). A model change in either child means bumping its pin here and re-running `migrate`.
+- **`OPENOUTREACH_HUB=off` is this fork's one behavioural change** (`openoutreach/hub_off.py`, applied in `_hand_the_children_their_environment`). It replaces attributes on the pinned `openoutfind.contacts.service`; after any `openoutfind` pin bump run `tests/test_hub_off.py` before anything else.
 
 ## Project Overview
 
